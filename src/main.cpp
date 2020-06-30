@@ -8,10 +8,27 @@
 #include "helpers.h"
 #include "json.hpp"
 
+//#include "globals.h"
+
+#include "spline.h"
+#include "vehicle.h"
+#include "generate_trajectory.h"
+//#include "state.h"
+
+#include "vehicle_database.h"
+
 // for convenience
 using nlohmann::json;
 using std::string;
 using std::vector;
+using std::cout;
+using std::endl;
+using std::abs;
+using std::min;
+
+/*
+
+*/
 
 int main() {
   uWS::Hub h;
@@ -80,12 +97,18 @@ int main() {
           // Previous path data given to the Planner
           auto previous_path_x = j[1]["previous_path_x"];
           auto previous_path_y = j[1]["previous_path_y"];
+
+          vector<double> previous_path_x_vector;
+          vector<double> previous_path_y_vector;
+          
+          
           // Previous path's end s and d values 
           double end_path_s = j[1]["end_path_s"];
           double end_path_d = j[1]["end_path_d"];
 
           // Sensor Fusion Data, a list of all other cars on the same side 
           //   of the road.
+
           auto sensor_fusion = j[1]["sensor_fusion"];
 
           json msgJson;
@@ -98,10 +121,33 @@ int main() {
            *   sequentially every .02 seconds
            */
 
+          //Prediction Module
+
+          Vehicle ego_vehicle=Vehicle(car_x,car_y,car_s,car_d,car_yaw,car_speed);
+          /*
+          int state=State(sensor_fusion,ego_vehicle,map_waypoints_x,map_waypoints_y); //Code working till this point
+
+          cout<<"State="<<state<<endl;
+          cout<<"Speed="<<ego_vehicle.speed<<endl;
+        
+          vector<vector<double>> trajectory=GenerateTrajectory(ego_vehicle,state,sensor_fusion,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
+          
+          next_x_vals=trajectory[0];
+          next_y_vals=trajectory[1];
+          */
+          
+          VehicleDatabase vehicle_database(sensor_fusion);
+          int state=vehicle_database.State(ego_vehicle);
+
+          vector<vector<double>> trajectory=GenerateTrajectory(ego_vehicle,state,vehicle_database,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
+
+          next_x_vals=trajectory[0];
+          next_y_vals=trajectory[1];
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
+         
           auto msg = "42[\"control\","+ msgJson.dump()+"]";
 
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
@@ -134,3 +180,6 @@ int main() {
   
   h.run();
 }
+
+
+
