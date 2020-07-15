@@ -12,8 +12,8 @@
 
 #include "spline.h"
 #include "vehicle.h"
-#include "generate_trajectory.h"
-//#include "state.h"
+//#include "generate_trajectory.h"
+#include "generate_trajectory2.h"
 
 #include "vehicle_database.h"
 
@@ -86,6 +86,9 @@ int main() {
         if (event == "telemetry") {
           // j[1] is the data JSON object
           
+          int rr;
+          std::cin>>rr;
+
           // Main car's localization Data
           double car_x = j[1]["x"];
           double car_y = j[1]["y"];
@@ -101,14 +104,12 @@ int main() {
           vector<double> previous_path_x_vector;
           vector<double> previous_path_y_vector;
           
-          
           // Previous path's end s and d values 
           double end_path_s = j[1]["end_path_s"];
           double end_path_d = j[1]["end_path_d"];
 
           // Sensor Fusion Data, a list of all other cars on the same side 
           //   of the road.
-
           auto sensor_fusion = j[1]["sensor_fusion"];
 
           json msgJson;
@@ -121,36 +122,29 @@ int main() {
            *   sequentially every .02 seconds
            */
 
-          //Prediction Module
-
+          //Prediction Module          
           Vehicle ego_vehicle=Vehicle(car_x,car_y,car_s,car_d,car_yaw,car_speed);
-          /*
-          int state=State(sensor_fusion,ego_vehicle,map_waypoints_x,map_waypoints_y); //Code working till this point
-
-          cout<<"State="<<state<<endl;
-          cout<<"Speed="<<ego_vehicle.speed<<endl;
-        
-          vector<vector<double>> trajectory=GenerateTrajectory(ego_vehicle,state,sensor_fusion,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
-          
-          next_x_vals=trajectory[0];
-          next_y_vals=trajectory[1];
-          */
+          //cout<<"Speed="<<ego_vehicle.speed<<endl;
           
           VehicleDatabase vehicle_database(sensor_fusion);
-          int state=vehicle_database.State(ego_vehicle);
+          int state=vehicle_database.State(ego_vehicle); //The vehicle changes paths every now and then
+          cout<<"State="<<state<<endl; 
+          cout<<"Ego vehicle velocity="<<ego_vehicle.speed;
+          //cout<<"Is there a vehicle Ahead?:"<<vehicle_database.VehicleInFront(ego_vehicle)<<endl;
 
-          vector<vector<double>> trajectory=GenerateTrajectory(ego_vehicle,state,vehicle_database,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
-
+          vector<vector<double>> trajectory=GenerateTrajectory2(ego_vehicle,state,vehicle_database,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
           next_x_vals=trajectory[0];
           next_y_vals=trajectory[1];
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
-
          
           auto msg = "42[\"control\","+ msgJson.dump()+"]";
 
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
+          //while(true){}
+
         }  // end "telemetry" if
       } else {
         // Manual driving
@@ -179,7 +173,9 @@ int main() {
   }
   
   h.run();
+
 }
+
 
 
 

@@ -1,7 +1,6 @@
 #ifndef VEHICLE_DATABASE_H
 #define VEHICLE_DATABASE_H
 
-
 #include "json.hpp"
 #include "math.h"
 #include "vehicle.h"
@@ -31,6 +30,7 @@ public:
 	    Vehicle current_vehicle=Vehicle(x,y,s,d,yaw,speed);
 	    vehicles.push_back(current_vehicle);
   	}
+	    //std::cout<<"Vehicle Database Successfully instantiated"<<std::endl;
   }
 
   double DistanceBetweenVehicles(Vehicle& v1, Vehicle& v2){
@@ -54,7 +54,7 @@ public:
   	return abs(v1.d-v2.d)<same_lane_tolerance;
   }
 
-  bool VehicleToLeft(Vehicle ego_vehicle){ //Provides a list of vehicles to the left.
+  bool VehicleToLeft(Vehicle ego_vehicle){ //Provides whether there's a vehicle to the left.
     int is_left_lane_occupied=false;
     for(auto iter=vehicles.begin();iter<vehicles.end();iter++){
       Vehicle current_vehicle=*iter;
@@ -70,20 +70,20 @@ public:
     return is_left_lane_occupied;
   }
 
-	bool VehicleToRight(Vehicle ego_vehicle){ //Provides a list of vehicles to the left.
-	int is_right_lane_occupied=false;
-	for(auto iter=vehicles.begin();iter<vehicles.end();iter++){
-	  Vehicle current_vehicle=*iter;
+	bool VehicleToRight(Vehicle& ego_vehicle){ //Provides a list of vehicles to the left.	
+		int is_right_lane_occupied=false;
+		for(auto iter=vehicles.begin();iter<vehicles.end();iter++){
+		  Vehicle current_vehicle=*iter;
 
-	  if(DistanceBetweenVehicles(ego_vehicle,current_vehicle)<front_distance_tolerance and IsVehicleAhead(ego_vehicle,current_vehicle)){
-	  	if(current_vehicle.d>ego_vehicle.d+same_lane_tolerance){is_right_lane_occupied=true;}
-	  }
+		  if(DistanceBetweenVehicles(ego_vehicle,current_vehicle)<front_distance_tolerance and IsVehicleAhead(ego_vehicle,current_vehicle)){
+		  	if(current_vehicle.d>ego_vehicle.d+same_lane_tolerance){is_right_lane_occupied=true;}
+		  }
 
-	  if(DistanceBetweenVehicles(ego_vehicle,current_vehicle)<back_distance_tolerance and !IsVehicleAhead(ego_vehicle,current_vehicle)){
-	  	if(current_vehicle.d>ego_vehicle.d+same_lane_tolerance){is_right_lane_occupied=true;}
-	  }
-	}
-	return is_right_lane_occupied;
+		  if(DistanceBetweenVehicles(ego_vehicle,current_vehicle)<back_distance_tolerance and !IsVehicleAhead(ego_vehicle,current_vehicle)){
+		  	if(current_vehicle.d>ego_vehicle.d+same_lane_tolerance){is_right_lane_occupied=true;}
+		  }
+		}
+		return is_right_lane_occupied;
 	}  
 
 	int VehicleInFront(Vehicle& ego_vehicle){
@@ -96,7 +96,7 @@ public:
 		  }
 
 		}
-		return index;
+		return -1;
 		}
 
 	double ClosestDistance(Vehicle& ego_vehicle){
@@ -104,7 +104,8 @@ public:
 		for(auto iter=vehicles.begin();iter<vehicles.end();iter++){
 		  Vehicle current_vehicle=*iter;
 		  min_distance=std::min(min_distance,DistanceBetweenVehicles(ego_vehicle,current_vehicle));
-	}
+		}
+		return min_distance;
 	}		
 
 	int State(Vehicle& ego_vehicle){
@@ -112,23 +113,30 @@ public:
 		0: Track Speed
 		1: Turn Left
 		2: Turn Right
-		3: Stop Instantly
+		3: Follow Leader
+
+		4: Stop Instantly
 		*/
 
-		bool vehicle_in_front=VehicleToLeft(ego_vehicle);
-		bool vehicle_to_right=VehicleToRight(ego_vehicle);
-		bool vehicle_to_left=VehicleInFront(ego_vehicle)==-1;
+		bool vehicle_to_left=VehicleToLeft(ego_vehicle); //Working
+		bool vehicle_to_right=VehicleToRight(ego_vehicle); //Working
+		bool vehicle_in_front=VehicleInFront(ego_vehicle)!=-1;
 		
-		bool stop_instantly=ClosestDistance(ego_vehicle)<stopping_distance;
+		//bool stop_instantly=ClosestDistance(ego_vehicle)<stopping_distance;
+		//if(stop_instantly){return 4;}
 
-		if(stop_instantly){return 3;}
+
 		if(!vehicle_in_front){return 0;}
 
 		if(!vehicle_to_left and ego_vehicle.lane>0){
 			return 1;
 		}
 
-		return 2;
+		if(!vehicle_to_right and ego_vehicle.lane<2){
+			return 2;
+		}
+
+		return 3;
 	}
 
 };
