@@ -67,8 +67,10 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
+  int i=0;
+
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
-               &map_waypoints_dx,&map_waypoints_dy]
+               &map_waypoints_dx,&map_waypoints_dy, i]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -87,7 +89,7 @@ int main() {
           // j[1] is the data JSON object
           
           int rr;
-          std::cin>>rr;
+          //std::cin>>rr;
 
           // Main car's localization Data
           double car_x = j[1]["x"];
@@ -124,14 +126,11 @@ int main() {
 
           //Prediction Module          
           Vehicle ego_vehicle=Vehicle(car_x,car_y,car_s,car_d,car_yaw,car_speed);
-          //cout<<"Speed="<<ego_vehicle.speed<<endl;
           
           VehicleDatabase vehicle_database(sensor_fusion);
           int state=vehicle_database.State(ego_vehicle); //The vehicle changes paths every now and then
           cout<<"State="<<state<<endl; 
-          cout<<"Ego vehicle velocity="<<ego_vehicle.speed;
-          //cout<<"Is there a vehicle Ahead?:"<<vehicle_database.VehicleInFront(ego_vehicle)<<endl;
-
+          
           vector<vector<double>> trajectory=GenerateTrajectory2(ego_vehicle,state,vehicle_database,map_waypoints_x,map_waypoints_y,map_waypoints_s,previous_path_x,previous_path_y);
           next_x_vals=trajectory[0];
           next_y_vals=trajectory[1];
@@ -143,7 +142,7 @@ int main() {
 
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
-          //while(true){}
+
 
         }  // end "telemetry" if
       } else {

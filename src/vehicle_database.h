@@ -131,11 +131,9 @@ public:
 		if(!vehicle_to_left and ego_vehicle.lane>0){
 			return 1;
 		}
-
 		if(!vehicle_to_right and ego_vehicle.lane<2){
 			return 2;
 		}
-
 		return 3;
 	}
 

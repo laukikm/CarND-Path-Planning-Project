@@ -8,7 +8,7 @@ const double same_lane_tolerance=2.0;
 
 const double speed_limit=22.0; //This is in m/s. Translates to about 50 mph
 
-const double speed_tolerance=0.5;
+const double speed_tolerance=0.1;
 
 const double s_max = 6945.554;
 const double s_last_waypoint=6914.15;
@@ -25,6 +25,8 @@ const double waypoint_distance_threshold=5;
 
 const int latency=5; 
 
-const double min_speed=0.05
+const double min_speed=0.05;
+
+const int points_from_previous_path=2;
 
 #endif

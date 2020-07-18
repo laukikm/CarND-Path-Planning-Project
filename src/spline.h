@@ -281,6 +281,10 @@ void spline::set_boundary(spline::bd_type left, double left_value,
 }
 
 
+bool compare_vector(vector<double> a,vector<double> b){
+    return a[0]>b[0];
+}
+
 void spline::set_points(const std::vector<double>& x,
                         const std::vector<double>& y, bool cubic_spline)
 {
@@ -290,9 +294,29 @@ void spline::set_points(const std::vector<double>& x,
     m_y=y;
     int   n=x.size();
     // TODO: maybe sort x and y, rather than returning an error
+    
     for(int i=0; i<n-1; i++) {
         assert(m_x[i]<m_x[i+1]);
     }
+    
+
+    /*
+    vector<vector<double>> super_vector;
+
+    for(int i=0;i<m_x.size();i++){
+        super_vector.push_back({m_x[i],m_y[i]});
+    }
+
+    std::sort(super_vector.begin(),super_vector.end(),compare_vector);
+
+    m_x={};
+    m_y={};
+
+    for(int i=0;i<m_x.size();i++){
+        m_x.push_back(super_vector[i][0]);
+        m_y.push_back(super_vector[i][1]);
+    }
+    */
 
     if(cubic_spline==true) { // cubic spline interpolation
         // setting up the matrix and right hand side of the equation system
