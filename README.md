@@ -71,6 +71,17 @@ A really helpful resource for doing this project and creating smooth trajectorie
 
 ---
 
+## My Approach
+
+There are 5 States that are possible outputs of the Behaviour Planner. 
+0-Track Speed
+1-Turn Left
+2-Turn Right
+3-Follow Leader
+4-Stop Instantly
+
+The states are determined based directly on the positions of the car. Once, the state is known, target frenet coordinates are calculated and converted to the body frame of the ego vehicle, to fit a spline. The points are transformed back to the map frame and then returned.
+
 ## Dependencies
 
 * cmake >= 3.5
