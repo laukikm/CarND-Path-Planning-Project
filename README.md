@@ -85,7 +85,9 @@ There are 5 States that are possible outputs of the Behaviour Planner.
 
 4-Stop Instantly
 
-The states are determined based directly on the positions of the car. Once, the state is known, target frenet coordinates are calculated and converted to the body frame of the ego vehicle, to fit a spline. The points are transformed back to the map frame and then returned.
+The states are determined based directly on the positions of the car and the objects surrounding it. Once, the state is known, target frenet coordinates are calculated and converted to the body frame of the ego vehicle, to fit a spline. 
+
+In order to minimize the effects of latency, the initial points in the path are the same as the ones that were previously returned but not processed (If I didn't do this, the simulator recorded abrupt jumps in velocity, causing the whole thing to go haywyre). Subsequent points are calculated by interpolating the spline generated before. All the final points are returned in the map frame of reference.
 
 ## Dependencies
 
