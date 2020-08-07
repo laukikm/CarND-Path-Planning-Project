@@ -89,7 +89,7 @@ The states are determined based directly on the positions of the car and the obj
 
 In order to minimize the effects of latency, the initial points in the path are the same as the ones that were previously returned but not processed (If I didn't do this, the simulator recorded abrupt jumps in velocity, causing the whole thing to go haywyre). Subsequent points are calculated by interpolating the spline generated before. All the final points are returned in the map frame of reference.
 
-![Alt Text](https://media.giphy.com/media/ehOVawwS3kvmTj33Xq/giphy-downsized-large.gif)
+![Alt Text](https://media.giphy.com/media/ehOVawwS3kvmTj33Xq/giphy.gif)
 
 ## Dependencies
 
