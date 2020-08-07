@@ -89,7 +89,9 @@ The states are determined based directly on the positions of the car and the obj
 
 In order to minimize the effects of latency, the initial points in the path are the same as the ones that were previously returned but not processed (If I didn't do this, the simulator recorded abrupt jumps in velocity, causing the whole thing to go haywyre). Subsequent points are calculated by interpolating the spline generated before. All the final points are returned in the map frame of reference.
 
-<img src="images/lane_change.gif" width="40" height="40" />
+<img src="images/lane_change.gif" width="700" height="500" />
+
+As you can see above, the vehicle detects another vehicle in front of itself, and decides to change lanes. Moving ahead, it realizes that there is no faster lane that it could safely switch to, hence slows down to match the speed of the vehicle in front.
 
 ## Dependencies
 
